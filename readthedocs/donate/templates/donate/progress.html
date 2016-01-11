@@ -4,25 +4,21 @@
 <div class="donate-stats">
   {% if done %}
 
-  <h2>Thanks for supporting us!</h2>
+  <h2>Welcome to the IST Research Read the Docs!</h2>
     <p>
-    Read the Docs has reached our 3 month sustainability goal.
-    From May until July we will be devoting those contributions to making Read the Docs better supported.
-    Thanks to all the folks who have contributed.
+    This place is a home for project documentation created by developers for developers.
+    The documentation here should give any developer the ability to successfully learn and understand any project being worked on within the company. 
+    The goal of putting this together is to facilitate a centralized place for all developer documentation that everyone could benefit from seeing or having access to.   
     </p>
 
     <p>
-    Please read our <a href="https://blog.readthedocs.com/fundraising-wrapup/">blog post</a> outlining our plan going forward.
-    All backers will receive information about how to follow along with the work we've been doing.
-    We're excited to get things rolling,
-    so stay tuned!
-    </p>
+    The technical documentation outlined within can contain API documentation, architecture overviews, UML diagrams, testing procedures, version history, or anything you think is relevant for both new and old developers to learn about and contribute to a specific project.
+        Some of the benefits of putting your documentation here is that it integrates nicely with Github version control and repositories, can generate PDF's of your documentation, and can automatically build your documentation when you push your git commit.
+</p>
 
-    {% if read_more %}
-      <p>
-        You can find more information on our <b><a href="{% url 'donate' %}#about">{% trans 'Sustainability Page' %}</a></b>
-      </p>
-    {% endif %}
+  <p>
+    For more information on how to get started, please see the <b><a href="https://rtfd.istresearch.com/docs/general/en/latest/">General Overview</a></b> Project.
+  </p>
 
   {% else %}
 

@@ -28,6 +28,11 @@ class Backend(BaseVCS):
             if self.token:
                 clone_url = 'https://%s@%s' % (self.token, hacked_url)
                 return clone_url
+
+            if 'OAUTH_SECRET' in os.environ and re.findall('istresearch', hacked_url):
+                clone_url = 'https://%s:x-oauth-basic@%s' % (os.environ.get('OAUTH_SECRET'), hacked_url)
+                return clone_url
+
             # Don't edit URL because all hosts aren't the same
 
             # else:
