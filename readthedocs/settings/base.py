@@ -23,7 +23,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SITE_ROOT = '/'.join(os.path.dirname(os.path.realpath(__file__)).split('/')[0:-2])
+SITE_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
 CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
@@ -101,6 +103,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'readthedocs.core.middleware.ProxyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -125,7 +128,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # All auth
-
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
@@ -145,11 +147,16 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken'
 )
 
+# set GitHub scope
+SOCIALACCOUNT_PROVIDERS = {
+    'github': {'SCOPE': ['user:email', 'read:org', 'admin:repo_hook', 'repo:status']}
+}
+
 
 ROOT_URLCONF = 'readthedocs.urls'
 
 TEMPLATE_DIRS = (
-    '%s/readthedocs/templates/' % SITE_ROOT,
+    TEMPLATE_ROOT,
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -161,9 +168,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     # Read the Docs processor
     "readthedocs.core.context_processors.readthedocs_processor",
-    # allauth specific context processors
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
 )
 
 INSTALLED_APPS = [
@@ -174,6 +178,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.messages',
+    'django.contrib.humanize',
 
     # third party apps
     'pagination',
@@ -184,6 +189,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'copyright',
+    'textclassifier',
+    'annoying',
 
     # Celery bits
     'djcelery',
@@ -191,8 +198,6 @@ INSTALLED_APPS = [
     # daniellindsleyrocksdahouse
     'haystack',
     'tastypie',
-
-
 
     # our apps
     'readthedocs.bookmarks',
@@ -208,6 +213,7 @@ INSTALLED_APPS = [
     'readthedocs.privacy',
     'readthedocs.gold',
     'readthedocs.donate',
+    'readthedocs.payments',
 
     # allauth
     'allauth',
@@ -215,11 +221,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.bitbucket',
-    # 'allauth.socialaccount.providers.twitter',
+    'allauth.socialaccount.providers.bitbucket_oauth2',
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'PAGINATE_BY': 10
 }
@@ -236,14 +241,21 @@ CELERYD_PREFETCH_MULTIPLIER = 1
 CELERY_CREATE_MISSING_QUEUES = True
 
 CELERY_DEFAULT_QUEUE = 'celery'
-CELERY_QUEUES = (
-    Queue('celery', Exchange('celery'), routing_key='celery'),
-    Broadcast('build_broadcast_tasks'),
-)
+# Wildcards not supported: https://github.com/celery/celery/issues/150
+CELERY_ROUTES = {
+    'readthedocs.oauth.tasks.SyncBitBucketRepositories': {
+        'queue': 'web',
+    },
+    'readthedocs.oauth.tasks.SyncGitHubRepositories': {
+        'queue': 'web',
+    },
+}
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 SESSION_COOKIE_DOMAIN = 'readthedocs.org'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
 
 HAYSTACK_CONNECTIONS = {
     'default': {

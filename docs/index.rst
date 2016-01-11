@@ -44,6 +44,7 @@ Information about development is also available:
    features
    support
    faq
+   yaml-config
 
 
 .. _feature-docs:
@@ -58,6 +59,7 @@ Information about development is also available:
    alternate_domains
    localization
    vcs
+   conda
    canonical
    single_version
    privacy
@@ -77,12 +79,12 @@ Information about development is also available:
    contribute
    tests
    architecture
-   development
+   development/standards
+   development/buildenvironments
    symlinks
    settings
    i18n
    issue-labels
-   api
 
 .. _business-docs:
 

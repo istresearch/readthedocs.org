@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404
-from django.template import Context, loader as template_loader
+from django.template import RequestContext, loader as template_loader
 from django.conf import settings
-from django.core.context_processors import csrf
 
 from rest_framework import decorators, permissions
-from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONPRenderer, JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.donate.models import SupporterPromo
 from readthedocs.projects.models import Project
@@ -17,7 +17,7 @@ from readthedocs.projects.version_handling import parse_version_failsafe
 
 def get_version_compare_data(project, base_version=None):
     highest_version_obj, highest_version_comparable = highest_version(
-        project.versions.filter(active=True))
+        project.versions.public().filter(active=True))
     ret_val = {
         'project': unicode(highest_version_obj),
         'version': unicode(highest_version_comparable),
@@ -44,7 +44,7 @@ def get_version_compare_data(project, base_version=None):
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer))
 def footer_html(request):
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
@@ -74,7 +74,7 @@ def footer_html(request):
     else:
         path = ""
 
-    if version.type == 'tag' and version.project.has_pdf(version.slug):
+    if version.type == TAG and version.project.has_pdf(version.slug):
         print_url = (
             'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'
             .format(
@@ -101,12 +101,13 @@ def footer_html(request):
 
     version_compare_data = get_version_compare_data(project, version)
 
-    context = Context({
+    context = {
         'project': project,
+        'version': version,
         'path': path,
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.verbose_name,
-        'versions': project.ordered_active_versions(),
+        'versions': project.ordered_active_versions(user=request.user),
         'main_project': main_project,
         'translations': main_project.translations.all(),
         'current_language': project.language,
@@ -118,10 +119,10 @@ def footer_html(request):
         'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
         'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
-    })
+    }
 
-    context.update(csrf(request))
-    html = template_loader.get_template('restapi/footer.html').render(context)
+    request_context = RequestContext(request, context)
+    html = template_loader.get_template('restapi/footer.html').render(request_context)
     resp_data = {
         'html': html,
         'version_active': version.active,

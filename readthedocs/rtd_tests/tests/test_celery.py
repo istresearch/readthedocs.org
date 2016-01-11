@@ -1,10 +1,14 @@
 import os
-from os.path import exists
-import shutil
-from tempfile import mkdtemp
-from django.contrib.auth.models import User
 import json
+import shutil
+from os.path import exists
+from tempfile import mkdtemp
 
+from django.contrib.auth.models import User
+from django_dynamic_fixture import get
+from mock import patch, MagicMock
+
+from readthedocs.builds.models import Build
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
 
@@ -16,13 +20,14 @@ from readthedocs.rtd_tests.mocks.mock_api import mock_api
 class TestCeleryBuilding(RTDTestCase):
 
     """These tests run the build functions directly. They don't use celery"""
-    fixtures = ['eric.json']
 
     def setUp(self):
         repo = make_test_git()
         self.repo = repo
         super(TestCeleryBuilding, self).setUp()
-        self.eric = User.objects.get(username='eric')
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="git",
@@ -44,7 +49,7 @@ class TestCeleryBuilding(RTDTestCase):
 
     def test_clear_artifacts(self):
         version = self.project.versions.all()[0]
-        directory = self.project.get_production_media_path(type='pdf', version_slug=version.slug)
+        directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
         result = tasks.clear_artifacts.delay(version_pk=version.pk)
@@ -58,10 +63,19 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs',
+           new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs',
+           new=MagicMock)
     def test_update_docs(self):
-        with mock_api(self.repo):
-            result = tasks.update_docs.delay(self.project.pk, record=False,
-                                             intersphinx=False)
+        build = get(Build, project=self.project,
+                    version=self.project.versions.first())
+        with mock_api(self.repo) as mapi:
+            result = tasks.update_docs.delay(
+                self.project.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False)
         self.assertTrue(result.successful())
 
     def test_update_imported_doc(self):

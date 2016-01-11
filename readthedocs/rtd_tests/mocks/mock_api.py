@@ -55,7 +55,7 @@ def mock_version(repo):
                     "subdomain": "http://docs.readthedocs.org/",
                     "suffix": ".rst",
                     "theme": "default",
-                    "use_virtualenv": false,
+                    "install_project": false,
                     "users": [
                         "/api/v1/user/1/"
                     ],
@@ -77,13 +77,20 @@ class MockApi(object):
     def project(self, x):
         return ProjectData()
 
+    def build(self, x):
+        return mock.Mock(**{'get.return_value': {'state': 'triggered'}})
+
+    def command(self, x):
+        return mock.Mock(**{'get.return_value': {}})
+
 
 @contextmanager
 def mock_api(repo):
     api_mock = MockApi(repo)
-    with (
-            mock.patch('readthedocs.restapi.client.api', api_mock) and
-            mock.patch('readthedocs.api.client.api', api_mock) and
-            mock.patch('readthedocs.projects.tasks.api_v2', api_mock) and
-            mock.patch('readthedocs.projects.tasks.api_v1', api_mock)):
+    with mock.patch('readthedocs.restapi.client.api', api_mock), \
+            mock.patch('readthedocs.api.client.api', api_mock), \
+            mock.patch('readthedocs.projects.tasks.api_v2', api_mock), \
+            mock.patch('readthedocs.projects.tasks.api_v1', api_mock), \
+            mock.patch('readthedocs.doc_builder.environments.api_v1', api_mock), \
+            mock.patch('readthedocs.doc_builder.environments.api_v2', api_mock):
         yield api_mock

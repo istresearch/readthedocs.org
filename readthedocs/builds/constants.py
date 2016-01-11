@@ -1,11 +1,17 @@
 from django.utils.translation import ugettext_lazy as _
 
+BUILD_STATE_TRIGGERED = 'triggered'
+BUILD_STATE_CLONING = 'cloning'
+BUILD_STATE_INSTALLING = 'installing'
+BUILD_STATE_BUILDING = 'building'
+BUILD_STATE_FINISHED = 'finished'
+
 BUILD_STATE = (
-    ('triggered', _('Triggered')),
-    ('cloning', _('Cloning')),
-    ('installing', _('Installing')),
-    ('building', _('Building')),
-    ('finished', _('Finished')),
+    (BUILD_STATE_TRIGGERED, _('Triggered')),
+    (BUILD_STATE_CLONING, _('Cloning')),
+    (BUILD_STATE_INSTALLING, _('Installing')),
+    (BUILD_STATE_BUILDING, _('Building')),
+    (BUILD_STATE_FINISHED, _('Finished')),
 )
 
 BUILD_TYPES = (
@@ -19,10 +25,14 @@ BUILD_TYPES = (
     ('dash', _('Dash')),
 )
 
+BRANCH = 'branch'
+TAG = 'tag'
+UNKNOWN = 'unknown'
+
 VERSION_TYPES = (
-    ('branch', _('Branch')),
-    ('tag', _('Tag')),
-    ('unknown', _('Unknown')),
+    (BRANCH, _('Branch')),
+    (TAG, _('Tag')),
+    (UNKNOWN, _('Unknown')),
 )
 
 LATEST = 'latest'
