@@ -1,1 +1,1 @@
-../static/vendor/underscore-standalone.js
+../../readthedocs/core/static/core/js/underscore-min.js
