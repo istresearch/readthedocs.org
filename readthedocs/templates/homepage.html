@@ -36,26 +36,29 @@
 
 {% block content %}
 
-        {% if not request.user.is_authenticated %}
           <div class="module">
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>{% trans "What is this place?" %}</h3>
-                <p>
-{% blocktrans %}Read the Docs hosts documentation, making it fully searchable and easy to find.
-You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.
-We support <a href="http://read-the-docs.readthedocs.org/en/latest/webhooks.html">webhooks</a> so your docs get built when you commit code.
-There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href="http://read-the-docs.readthedocs.org/en/latest/features.html">full list of features</a> is available.{% endblocktrans %}
-                </p>
-                <p>
-{% blocktrans with "https://read-the-docs.readthedocs.org/en/latest/getting_started.html" as getting_started_url %}It's free and simple.  Read the <a href="{{ getting_started_url }}">Getting Started</a> guide to get going!{% endblocktrans %}
-                <p>
+<h2>Welcome to the IST Research Read the Docs!</h2>
+    <p>
+    This place is a home for project documentation created by developers for developers.
+    The documentation here should give any developer the ability to successfully learn and understand any project being worked on within the company. 
+    The goal of putting this together is to facilitate a centralized place for all developer documentation that everyone could benefit from seeing or having access to.   
+    </p>
+
+    <p>
+    The technical documentation outlined within can contain API documentation, architecture overviews, UML diagrams, testing procedures, version history, or anything you think is relevant for both new and old developers to learn about and contribute to a specific project.
+        Some of the benefits of putting your documentation here is that it integrates nicely with Github version control and repositories, can generate PDF's of your documentation, and can automatically build your documentation when you push your git commit.
+</p>
+
+  <p>
+    For more information on how to get started, please see the <b><a href="https://rtfd.istresearch.com/docs/general/en/latest/">General Overview</a></b> Project.
+  </p>
               </div>
 
             </div>
           </div>
-        {% endif %}
 
           {% include "core/widesearchbar.html" %}
 
@@ -149,13 +152,7 @@ There's also support for versioning so you can build docs from tags and branches
 
     <div>
         <p>
-            <a href="https://docs.readthedocs.org/en/latest/index.html">Documentation for Read the Docs</a> is hosted on the site. <a href="https://github.com/rtfd/readthedocs.org">Code for the site</a> is available on GitHub.
-        </p>
-        <p>
-            Read the Docs development is funded by readers like you. Help keep the site alive and well by supporting us on <a href="https://gratipay.com/readthedocs/">Gratipay</a>.
-        </p>
-        <p>
-            Hosting for the project is graciously provided by <a href="http://www.rackspace.com/cloud/">Rackspace</a>.
+            To view all IST Projects please visit the page <a href="https://rtfd.istresearch.com/projects/">here</a>.
         </p>
     </div>
 
